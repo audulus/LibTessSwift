@@ -241,7 +241,7 @@ open class TessC {
         
         var output: [TESSreal] = Array(repeating: 0, count: nverts * stride)
         output.withUnsafeMutableBufferPointer { body -> Void in
-            body.baseAddress?.assign(from: verts, count: nverts * stride)
+            body.baseAddress?.update(from: verts, count: nverts * stride)
         }
         var indicesOut: [Int] = []
         
