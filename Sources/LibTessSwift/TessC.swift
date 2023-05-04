@@ -54,7 +54,7 @@ open class TessC {
     /// memory pooling.
     var poolBuffer: UnsafeMutablePointer<UInt8>?
     /// Allocator - nil, if not using memory pooling.
-    var ma: TESSalloc?
+    var ma: UnsafeMutablePointer<TESSalloc>?
     
     /// TESStesselator* tess
     var _tess: UnsafeMutablePointer<Tesselator>
@@ -123,16 +123,17 @@ open class TessC {
             
             memoryPool = .allocate(capacity: 1)
             memoryPool?.pointee = MemPool(buffer: bufferPtr, size: 0)
-            
-            ma = TESSalloc(memalloc: poolAlloc,
-                           memrealloc: nil,
-                           memfree: poolFree,
-                           userData: memoryPool, meshEdgeBucketSize: 0,
-                           meshVertexBucketSize: 0, meshFaceBucketSize: 0,
-                           dictNodeBucketSize: 0, regionBucketSize: 0,
-                           extraVertices: 256)
-            
-            guard let tess = Tesselator.create(allocator: &ma!) else {
+
+            ma = .allocate(capacity: 1)
+            ma?.initialize(to: TESSalloc(memalloc: poolAlloc,
+                                         memrealloc: nil,
+                                         memfree: poolFree,
+                                         userData: memoryPool, meshEdgeBucketSize: 0,
+                                         meshVertexBucketSize: 0, meshFaceBucketSize: 0,
+                                         dictNodeBucketSize: 0, regionBucketSize: 0,
+                                         extraVertices: 256))
+
+            guard let tess = Tesselator.create(allocator: ma) else {
                 // Free memory
                 free(poolBuffer!)
                 
@@ -162,6 +163,7 @@ open class TessC {
         if let memoryPool = memoryPool {
             memoryPool.deallocate()
         }
+        ma?.deallocate()
     }
     
     /// A raw access to libtess2's tessAddContour, providing the contour from
