@@ -1,4 +1,4 @@
-// swift-tools-version:4.2
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
@@ -9,7 +9,7 @@ let package = Package(
             targets: ["LibTessSwift"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/LuizZak/MiniLexer.git", .exact("0.9.5")),
+        .package(url: "https://github.com/Audulus/MiniLexer.git", branch: "master"),
     ],
     targets: [
         .target(

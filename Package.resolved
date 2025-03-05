@@ -1,16 +1,15 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "MiniLexer",
-        "repositoryURL": "https://github.com/LuizZak/MiniLexer.git",
-        "state": {
-          "branch": null,
-          "revision": "4da97d6f92d79402cd3cf35d6438ec723554ae7c",
-          "version": "0.9.5"
-        }
+  "originHash" : "a20203dd2e6d8912d2ca6779691d221784c7fde1ce127e8ee563090250863f93",
+  "pins" : [
+    {
+      "identity" : "minilexer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Audulus/MiniLexer.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "1be6c27f3448ea0cf07b538ef9c44c0a473a29ae"
       }
-    ]
-  },
-  "version": 1
+    }
+  ],
+  "version" : 3
 }
