@@ -11,8 +11,8 @@ import LibTessSwift
 import MiniLexer
 
 struct Color {
-    static var white = Color(red: 1, green: 1, blue: 1, alpha: 1)
-    
+    static let white = Color(red: 1, green: 1, blue: 1, alpha: 1)
+
     var red: Float
     var green: Float
     var blue: Float
@@ -185,15 +185,12 @@ class DataLoader {
     }
 
     init() throws {
-        
-        // TODO: This is kinda nasty, but it's the only way to get the files we
-        // need until SwiftPM gets a resources story in place
-        // (see https://lists.swift.org/pipermail/swift-build-dev/Week-of-Mon-20161114/000742.html)
-        let path = (#file as NSString).deletingLastPathComponent
-        
+
+        let resourceURL = Bundle.module.resourceURL!.appending(component: "resources")
+
         let paths = try FileManager
             .default
-            .contentsOfDirectory(at: URL(fileURLWithPath: path),
+            .contentsOfDirectory(at: resourceURL,
                                  includingPropertiesForKeys: nil,
                                  options: .skipsSubdirectoryDescendants)
             .filter { $0.pathExtension == "dat" }

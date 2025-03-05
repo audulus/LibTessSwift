@@ -3,6 +3,9 @@ import PackageDescription
 
 let package = Package(
     name: "LibTessSwift",
+    platforms: [
+        .macOS(.v15), .iOS(.v18)
+    ],
     products: [
         .library(
             name: "LibTessSwift",
@@ -20,6 +23,7 @@ let package = Package(
             dependencies: ["libtess2"]),
         .testTarget(
             name: "LibTessSwiftTests",
-            dependencies: ["LibTessSwift", "MiniLexer"]),
+            dependencies: ["LibTessSwift", "MiniLexer"],
+            resources: [.copy("resources")]),
     ]
 )

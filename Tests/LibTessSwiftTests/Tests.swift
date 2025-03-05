@@ -3,6 +3,7 @@ import XCTest
 import LibTessSwift
 import MiniLexer
 
+@MainActor
 class Tests: XCTestCase {
     
     static var _loader: DataLoader = try! DataLoader()
@@ -138,64 +139,46 @@ class Tests: XCTestCase {
     
     public func testTessellate_WithAssets_ReturnsExpectedTriangulation() {
         
-        // Multi-task the test
-        let queue = OperationQueue()
-        
         for data in Tests.getTestCaseData() {
-            queue.addOperation {
-                autoreleasepool {
-                    do {
-                        let pset = try Tests._loader.getAsset(name: data.assetName)!.polygon!
-                        let tess = TessC()!
-                        PolyConvert.toTessC(pset: pset, tess: tess)
-                        try! tess.tessellate(windingRule: data.winding,
-                                             elementType: .polygons,
-                                             polySize: data.elementSize)
-                        
-                        let resourceUrl =
-                            data.assetURL
-                                .deletingPathExtension()
-                                .appendingPathExtension("testdat")
-                        
-                        let reader = try FileReader(fileUrl: resourceUrl)
-                        
-                        guard let testData = Tests.parseTestData(data.winding, data.elementSize, reader) else {
-                            XCTFail("Unexpected empty data for test result for \(data.assetName)")
-                            return
-                        }
-                        
-                        XCTAssertEqual(testData.elementSize, data.elementSize)
-                        
-                        var indices: [Int] = []
-                        
-                        for i in 0..<tess.elementCount {
-                            for j in 0..<data.elementSize {
-                                let index = tess.elements![i * data.elementSize + j]
-                                indices.append(index)
-                            }
-                        }
-                        
-                        if(testData.indices != indices) {
-                            XCTFail("Failed test: winding: \(data.winding.rawValue) file: \(data.assetName) element size: \(data.elementSize)")
-                            print(testData.indices, indices)
-                        }
-                    } catch {
-                        XCTFail("Failed test: winding: \(data.winding.rawValue) file: \(data.assetName) element size: \(data.elementSize) - caught unexpected error \(error)")
+            do {
+                let pset = try Tests._loader.getAsset(name: data.assetName)!.polygon!
+                let tess = TessC()!
+                PolyConvert.toTessC(pset: pset, tess: tess)
+                try! tess.tessellate(windingRule: data.winding,
+                                     elementType: .polygons,
+                                     polySize: data.elementSize)
+
+                let resourceUrl =
+                data.assetURL
+                    .deletingPathExtension()
+                    .appendingPathExtension("testdat")
+
+                let reader = try FileReader(fileUrl: resourceUrl)
+
+                guard let testData = Tests.parseTestData(data.winding, data.elementSize, reader) else {
+                    XCTFail("Unexpected empty data for test result for \(data.assetName)")
+                    return
+                }
+
+                XCTAssertEqual(testData.elementSize, data.elementSize)
+
+                var indices: [Int] = []
+
+                for i in 0..<tess.elementCount {
+                    for j in 0..<data.elementSize {
+                        let index = tess.elements![i * data.elementSize + j]
+                        indices.append(index)
                     }
                 }
+
+                if(testData.indices != indices) {
+                    XCTFail("Failed test: winding: \(data.winding.rawValue) file: \(data.assetName) element size: \(data.elementSize)")
+                    print(testData.indices, indices)
+                }
+            } catch {
+                XCTFail("Failed test: winding: \(data.winding.rawValue) file: \(data.assetName) element size: \(data.elementSize) - caught unexpected error \(error)")
             }
         }
-        
-        let expec = expectation(description: "")
-        
-        // Sometimes, Xcode complains about a blocked main thread during tests
-        // Use XCTest's expectation to wrap the operation above
-        DispatchQueue.global().async {
-            queue.waitUntilAllOperationsAreFinished()
-            expec.fulfill()
-        }
-        
-        waitForExpectations(timeout: 200, handler: nil)
     }
 }
 
